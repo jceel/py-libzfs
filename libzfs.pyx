@@ -607,7 +607,7 @@ cdef class ZFS(object):
             raise err
 
     def get_dataset_by_path(self, path):
-        cdef libzfs.zfs_handle_t* handle = libzfs.zfs_path_to_zhandle(self.handle, path, zfs.ZFS_TYPE_DATASET)
+        cdef libzfs.zfs_handle_t* handle = libzfs.zfs_path_to_zhandle(self.handle, path, DatasetType.FILESYSTEM.value)
         cdef ZFSPool pool
         cdef ZFSDataset dataset
         if handle == NULL:
