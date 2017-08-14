@@ -145,8 +145,8 @@ class VDevState(enum.IntEnum):
     FAULTED = zfs.VDEV_STATE_FAULTED
     DEGRADED = zfs.VDEV_STATE_DEGRADED
     HEALTHY = zfs.VDEV_STATE_HEALTHY
-    
-    
+
+
 class VDevAuxState(enum.IntEnum):
     NONE = zfs.VDEV_AUX_NONE
     OPEN_FAILED = zfs.VDEV_AUX_OPEN_FAILED
@@ -164,7 +164,7 @@ class VDevAuxState(enum.IntEnum):
     BAD_LOG = zfs.VDEV_AUX_BAD_LOG
     EXTERNAL = zfs.VDEV_AUX_EXTERNAL
     SPLIT_POOL = zfs.VDEV_AUX_SPLIT_POOL
-    ASHIFT_TOO_BIG = zfs.VDEV_AUX_ASHIFT_TOO_BIG    
+    ASHIFT_TOO_BIG = zfs.VDEV_AUX_ASHIFT_TOO_BIG
 
 
 class PoolState(enum.IntEnum):
@@ -217,8 +217,8 @@ class ScanState(enum.IntEnum):
     SCANNING = zfs.DSS_SCANNING
     FINISHED = zfs.DSS_FINISHED
     CANCELED = zfs.DSS_CANCELED
-    
-    
+
+
 class ZIOType(enum.IntEnum):
     NONE = zfs.ZIO_TYPE_NULL
     READ = zfs.ZIO_TYPE_READ
@@ -2131,7 +2131,10 @@ cdef class ZFSObject(object):
             cfromname = fromname
 
         with nogil:
-            ret = libzfs.lzc_send_space(c_name, cfromname, &space)
+            IF FREEBSD_VERSION >= 1101501:
+                ret = libzfs.lzc_send_space(c_name, cfromname, 0, &space)
+            ELSE:
+                ret = libzfs.lzc_send_space(c_name, cfromname, &space)
 
         if ret != 0:
             raise ZFSException(Error.FAULT, "Cannot obtain space estimate: ")
@@ -2373,7 +2376,7 @@ cdef class ZFSDataset(ZFSObject):
         cdef zfs.zfs_cmd_t cmd
         cdef int ret
 
-        memset(&cmd, 0, cython.sizeof(libzfs.zfs_cmd))
+        memset(&cmd, 0, cython.sizeof(zfs.zfs_cmd_t))
 
         cmd.zc_cookie = fd
         strncpy(cmd.zc_name, self.name, zfs.MAXPATHLEN)
@@ -2593,7 +2596,7 @@ cdef class ZFSSnapshot(ZFSObject):
 
             nvl = NVList(<uintptr_t>ptr)
             return dict(nvl)
-        
+
     property mountpoint:
         def __get__(self):
             cdef char *mntpt
