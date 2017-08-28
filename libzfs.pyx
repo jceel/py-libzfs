@@ -1,6 +1,7 @@
 # cython: c_string_type=unicode, c_string_encoding=ascii
 #-
 # Copyright (c) 2014 iXsystems, Inc.
+# Copyright (c) 2017 Jakub Klama <jceel@FreeBSD.org>
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
